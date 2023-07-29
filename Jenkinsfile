@@ -22,9 +22,7 @@ pipeline {
         stage('Push') {
             steps {
                 echo 'Pushing the Docker image to Docker Hub...'
-                withCredentials([string(credentialsId: 'dockerhub', variable: 'dockerhub')]) {
-                    sh "docker login -u ankit191919 -p ${dockerhub}"
-                    // Push the Docker image with the corresponding tag
+                docker.withRegistry('https://index.docker.io/v1/', 'dockerhub') {
                     sh "docker-compose push"
                 }
             }
