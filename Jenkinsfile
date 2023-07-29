@@ -12,6 +12,9 @@ pipeline {
 
                 // Update the .env file with the new tag number
                 sh "echo 'TAG_NUMBER=${TAG_NUMBER}' > .env"
+                
+                // Add a sleep of 1 minute (for example, you can adjust the duration as needed)
+                sleep(time: 1, unit: 'MINUTES')
             }
         }
         stage('Push') {
