@@ -1,31 +1,37 @@
 pipeline {
     agent any
-
     stages {
-        stage('Checkout') {
+        stage('Build') {
             steps {
-                // Checkout the source code from GitHub
-                git credentialsId: 'Git', url: 'https://github.com/Ankitsrivastav19/devops-simplilearn.git'
+                echo 'Building the Docker image...'
+                // Increment the tag number for each build
+                sh 'TAG_NUMBER=$(($TAG_NUMBER + 1))'
+
+                // Build the Docker image with the updated tag number
+                sh "docker-compose build --build-arg TAG_NUMBER=${TAG_NUMBER}"
+
+                // Update the .env file with the new tag number
+                sh "echo 'TAG_NUMBER=${TAG_NUMBER}' > .env"
             }
         }
-
-        stage('Build and Push Docker Image') {
+        stage('Push') {
             steps {
-                // Build Docker image and push to Docker Hub
-                script {
-                    docker.withRegistry('https://index.docker.io/v1/', 'dockerhub') {
-                        def appImage = docker.build("ankit191919/docker-image:${env.BUILD_ID}")
-                        appImage.push()
-                    }
+                echo 'Pushing the Docker image to Docker Hub...'
+                withCredentials([string(credentialsId: 'dockerhub', variable: 'dockerhub')]) {
+                    sh "docker login -u ankit191919 -p ${dockerhub}"
+                    // Push the Docker image with the corresponding tag
+                    sh "docker-compose push"
                 }
             }
         }
-
         stage('Deploy') {
             steps {
-                // Pull and run the Docker image
-                sh 'docker run -d -p 8080:80 ankit191919/docker-image:${env.BUILD_ID}'
+                echo 'Pulling and running the Docker container...'
+                // Deploy the Docker container using the updated tag number
+                sh "docker-compose pull"
+                sh "docker-compose up -d"
             }
         }
     }
 }
+
