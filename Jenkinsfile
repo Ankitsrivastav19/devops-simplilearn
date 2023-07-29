@@ -22,10 +22,10 @@ pipeline {
         stage('Push') {
             steps {
                 echo 'Pushing the Docker image to Docker Hub...'
+                withCredentials([string(credentialsId: 'dockerhub', variable: 'dockerhub')]) {
+                    sh "docker login -u ankit191919 -p ${dockerhub}"
                     // Push the Docker image with the corresponding tag
-                   withCredentials([string(credentialsId: 'dockerhub', variable: 'dockerhub')]) {
-                   sh 'docker login -u ankit191919 -p ${dockerhub}'
-		   sh "docker-compose push"
+                    sh "docker-compose push"
                 }
             }
         }
@@ -39,3 +39,4 @@ pipeline {
         }
     }
 }
+
