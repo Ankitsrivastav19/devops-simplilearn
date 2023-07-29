@@ -22,7 +22,7 @@ pipeline {
         stage('Push') {
             steps {
                 echo 'Pushing the Docker image to Docker Hub...'
-                docker.withRegistry('https://index.docker.io/v1/', 'dockerhub') {
+                docker.withRegistry(url: 'https://index.docker.io/v1/', credentialsId: 'dockerhub') {
                     sh "docker-compose push"
                 }
             }
